@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "NTU Video Downloader",
+  "version": "0.0.1",
+  "description": "A simple video downloader for video on NTU COOL system.",
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "downloads",
+    "webRequest",
+    "webNavigation",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "*://cool.ntu.edu.tw/*",
+    "*://cool-video.dlc.ntu.edu.tw/*"
+  ],
+  "background": {
+    "service_worker": "background/background.js"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://cool.ntu.edu.tw/*"],
+      "js": ["content.js"]
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
