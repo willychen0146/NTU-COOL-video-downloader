@@ -1,5 +1,8 @@
 // popup.js
 
+// Define the browser API
+const api = typeof browser !== 'undefined' ? browser : chrome;
+
 document.getElementById('downloadBtn').addEventListener('click', function() {
   const button = this;
   const status = document.getElementById('status');
@@ -9,7 +12,7 @@ document.getElementById('downloadBtn').addEventListener('click', function() {
   // Hide button
   button.classList.add('hidden');
 
-  chrome.runtime.sendMessage({action: "triggerDownload"}, function(response) {
+  api.runtime.sendMessage({action: "triggerDownload"}, function(response) {
     if (response.success) {
       // Show loading image
       loadingImg.classList.remove('hidden');
@@ -21,7 +24,7 @@ document.getElementById('downloadBtn').addEventListener('click', function() {
       // If download failed, show error and button, hide loading image
       status.innerHTML = '<i class="fas fa-solid fa-skull"></i> <br> Download Failed';
       loadingImg.classList.add('hidden');
-      // Optionally, close the popup after a delay
+      // Close the popup after a delay
       setTimeout(() => window.close(), 2000);
     }
   });

@@ -1,10 +1,13 @@
 // background.js
 
+// Define the browser API
+const api = typeof browser !== 'undefined' ? browser : chrome;
+
 // Array to store video request URLs
 let videoRequestUrls = [];
 
 // Listen for requests made by the webpage
-chrome.webRequest.onBeforeRequest.addListener(
+api.webRequest.onBeforeRequest.addListener(
   details => {
     const url = details.url;
     // console.log("Request made by the webpage:", url);
@@ -18,7 +21,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 );
 
 // Listen for tab navigation events
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+api.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   // Check if the tab is navigating within the cool.ntu.edu.tw domain
   if (tab.url && tab.url.includes("cool.ntu.edu.tw") && changeInfo.status === "loading") {
     // Clear the videoRequestUrls array to start fresh for the new page
@@ -28,14 +31,14 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 });
 
 // Listen for tab removal events (when a tab is closed)
-chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
+api.tabs.onRemoved.addListener((tabId, removeInfo) => {
   // Clear the videoRequestUrls array as the tab is closed
   videoRequestUrls = [];
   console.log("Cleared videoRequestUrls as tab is closed.");
 });
 
 // Listen for messages from the popup and trigger the download
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+api.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "triggerDownload" && videoRequestUrls.length > 0) {
     const videoUrl = videoRequestUrls.pop(); // Use and remove the last URL
     fetch(videoUrl)
@@ -45,7 +48,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           // Generate a unique filename with a timestamp
           const timestamp = new Date().getTime();
           const uniqueFilename = `video_${timestamp}.mp4`;
-          chrome.downloads.download({
+          api.downloads.download({
             url: data.altSourceUri,
             filename: uniqueFilename
           }, function(downloadId) {
@@ -56,7 +59,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
               sendResponse({success: false, error: "Download initiation failed."});
             }
           });
-          return true; // This is crucial for asynchronous sendResponse
+          return true; // For asynchronous sendResponse
         } else {
           sendResponse({success: false, error: "No alternative source URI found."});
         }
@@ -65,7 +68,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         console.error('Error:', error);
         sendResponse({success: false, error: "Failed to fetch video URL."});
       });
-    return true; // Indicates that the response is sent asynchronously
+    return true; // Indicates the response is sent asynchronously
   } else {
     sendResponse({success: false, error: "No video URL found."});
   }
